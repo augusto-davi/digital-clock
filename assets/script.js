@@ -2,39 +2,60 @@ const $spanSec = document.querySelector(".seconds");
 const $spanMin = document.querySelector(".minutes");
 const $spanHour = document.querySelector(".hours");
 
-const time = {
-  second: 1000,
-  showSecond() {
-    const currentSec = new Date();
-    const seconds = currentSec.getSeconds();
-    if (seconds < 10) $spanSec.insertAdjacentText("afterbegin", "0");
-    $spanSec.insertAdjacentText("beforeend", seconds);
-    return seconds;
+const getCurrentTime = function () {
+  const currentTime = new Date();
+  const hours = currentTime.getHours();
+  const minutes = currentTime.getMinutes();
+  const seconds = currentTime.getSeconds();
+  return { seconds, minutes, hours };
+};
+
+const setCurrentTime = {
+  SECOND: 1000,
+  updateTime() {
+    setInterval(() => {
+      const isMinuteUpToDate = getCurrentTime().seconds === 0;
+      const isHourUpToDate = isMinuteUpToDate && getCurrentTime().minutes === 0;
+
+      if (isMinuteUpToDate) {
+        const currentMin = getCurrentTime().minutes;
+        if (currentMin < 10) $spanMin.textContent = `0${currentMin}`;
+        else $spanMin.textContent = `${currentMin}`;
+      }
+
+      if (isMinuteUpToDate && isHourUpToDate) {
+        const currentHour = getCurrentTime().hours;
+        if (currentMin < 10) $spanMin.textContent = `0${currentHour}`;
+        $spanHour.textContent = `${currentHour}`;
+      }
+    }, setCurrentTime.SECOND);
   },
-  showMinute() {
-    const currentMin = new Date();
-    const minutes = currentMin.getMinutes();
-    if (minutes < 10) $spanMin.insertAdjacentText("afterbegin", "0");
-    $spanMin.insertAdjacentText("beforeend", minutes);
-  },
-  showHour() {
-    const currentHour = new Date();
-    const hours = currentHour.getHours();
-    if (hours < 10) $spanHour.insertAdjacentText("afterbegin", "0");
-    $spanHour.insertAdjacentText("beforeend", hours);
+  updateSecond() {
+    setInterval(() => {
+      const currentSec = getCurrentTime().seconds;
+      if (currentSec < 10) $spanSec.textContent = `0${currentSec}`;
+      else $spanSec.textContent = `${currentSec}`;
+    }, setCurrentTime.SECOND);
   },
 };
 
-setInterval(time.showSecond, time.second);
-setInterval(time.showMinute, time.second);
-setInterval(time.showHour, time.second);
+(function showSeconds() {
+  const seconds = getCurrentTime().seconds;
+  if (seconds < 10) $spanSec.insertAdjacentText("afterbegin", "0");
+  $spanSec.insertAdjacentText("beforeend", seconds);
+})();
 
-setInterval(() => {
-  $spanSec.textContent = "";
-  $spanMin.textContent = "";
-  $spanHour.textContent = "";
-}, time.second - 0.01);
+(function showMinutes() {
+  const minutes = getCurrentTime().minutes;
+  if (minutes < 10) $spanMin.insertAdjacentText("afterbegin", "0");
+  $spanMin.insertAdjacentText("beforeend", minutes);
+})();
 
-time.showMinute();
-time.showSecond();
-time.showHour();
+(function showHours() {
+  const hours = getCurrentTime().hours;
+  if (hours < 10) $spanHour.insertAdjacentText("afterbegin", "0");
+  $spanHour.insertAdjacentText("beforeend", hours);
+})();
+
+setCurrentTime.updateSecond();
+setCurrentTime.updateTime();
